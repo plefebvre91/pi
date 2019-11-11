@@ -23,16 +23,6 @@
 # SOFTWARE.
 
 #######################################
-# Check for at least 1 parameter
-#######################################
-if [ -z $1 ]
-then
-    usage
-    exit
-fi
-
-
-#######################################
 # Help function
 # Globals:
 #   None
@@ -43,7 +33,8 @@ fi
 #######################################
 usage()
 {
-    echo "Usage: pi.bash <project_name>"
+    echo "Usage: pi.bash <type> <project_name>"
+    echo "  - type can be: 'sfml', 'cpp'"
 }
 
 
@@ -91,21 +82,38 @@ replace_in_file()
 }
 
 
+#######################################
+# Check for at least 2 parameters
+#######################################
+if [ -z $2 ]
+then
+    usage
+    exit
+fi
+
+
+template_style=$1
+project_name=$2
+
+#######################################
+# Get author name
+#######################################
 read -p "Project's author: " author
 
-project_name=$1
-current_directory=`pwd`
 
-echo "[+] Copying template..."
-cp -R template/sfml $current_directory/$project_name
-
+echo "[+] Copying $template_style template..."
+cp -R template/$template_style $project_name
 
 cd $project_name
 
-echo "[+] Creating CPP files..." 
+
+#######################################
+# Source files
+#######################################
 echo "  [*] Moving project.cpp to $project_name.cpp..." 
 mv src/project.cpp src/$project_name.cpp
 
+echo "[+] Creating CPP files..." 
 readonly cpp_files=`find src -name "*.cpp"`
 for file in $cpp_files
 do
@@ -113,11 +121,13 @@ do
 done
 
 
-echo "[+] Creating HPP files..." 
-
+#######################################
+# Header files
+#######################################
 echo "  [*] Moving project.hpp to $project_name.hpp..." 
 mv include/project.hpp include/"$project_name.hpp" 
 
+echo "[+] Creating HPP files..." 
 readonly hpp_files=`find include -name "*.hpp"`
 for file in $hpp_files
 do
@@ -125,7 +135,9 @@ do
 done
 
 
-
+#######################################
+# Toolchain files
+#######################################
 echo "[+] Creating CMakeLists.txt..."
 replace_in_file "{{project}}" $project_name CMakeLists.txt
 
