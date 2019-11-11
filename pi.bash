@@ -83,6 +83,38 @@ replace_in_file()
 
 
 #######################################
+# Replaces all occurences of src by
+# dest in file (lowercase and uppercase
+# versions of src and dst)
+# Globals:
+#   $author
+# Arguments:
+#   src - String to replace (lowercase)
+#   dst - Replacing string (lowercase)
+#   file - File to update
+# Returns:
+#   None
+#######################################
+check_dependecies()
+{
+    local deps="cmake"
+
+    for dep in $deps
+    do
+	echo -n "Checking for $dep..."
+	command -v $dep >/dev/null 2>&1 || { echo >&2 "Require $dep but it's not installed.  Aborting."; exit; }
+	echo " [OK]"
+    done
+}
+
+
+#######################################
+# Check for dependencies
+#######################################
+check_dependecies
+
+
+#######################################
 # Check for at least 2 parameters
 #######################################
 if [ -z $2 ]
